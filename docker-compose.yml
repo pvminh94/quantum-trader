@@ -79,7 +79,7 @@ services:
   # ── Backend (.NET 9 API + SignalR) ───────────────────────────
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: quantum-backend
     restart: unless-stopped
