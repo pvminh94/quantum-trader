@@ -1,0 +1,216 @@
+/* ═══════════════════════════════════════════════════════════════════
+ * globals.css - Tailwind CSS base styles for professional dark trading UX.
+ *
+ * Palette inspired by TradingView, Binance, MEXC:
+ *   #0b0e11 - Deepest background
+ *   #1e2329 - Panel backgrounds
+ *   #2b2f36 - Borders / dividers
+ *   #848e9c - Secondary text
+ *   #f0f4f8 - Primary text
+ *   #0ecb81 - Green (bid / buy / profit)
+ *   #f6465d - Red (ask / sell / loss)
+ *   #f0b90b - Yellow / gold (highlights, active tab)
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* ── Base reset ──────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  background-color: #0b0e11;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0b0e11;
+  color: #f0f4f8;
+  font-family: var(--font-sans, 'Inter', system-ui, -apple-system, sans-serif);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ── Monospace for data-heavy elements ──────────────────────────── */
+
+.font-mono,
+code,
+pre,
+kbd,
+.tabular-nums {
+  font-family: var(--font-mono, 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Selection ──────────────────────────────────────────────────── */
+
+::selection {
+  background-color: rgba(240, 185, 11, 0.3);
+  color: #f0f4f8;
+}
+
+/* ── Scrollbar (thin, dark) ─────────────────────────────────────── */
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #2b2f36 transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #2b2f36;
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #3b424a;
+}
+
+/* ── Flashing price animation ──────────────────────────────────── */
+
+.flash-green {
+  animation: flash-green 300ms ease-out;
+}
+
+.flash-red {
+  animation: flash-red 300ms ease-out;
+}
+
+@keyframes flash-green {
+  0% {
+    color: #0ecb81;
+    text-shadow: 0 0 8px rgba(14, 203, 129, 0.6);
+  }
+  100% {
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+@keyframes flash-red {
+  0% {
+    color: #f6465d;
+    text-shadow: 0 0 8px rgba(246, 70, 93, 0.6);
+  }
+  100% {
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+/* ── Toast notifications ──────────────────────────────────────── */
+
+.toast-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 360px;
+}
+
+.toast {
+  background: #1e2329;
+  border: 1px solid #2b2f36;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: #f0f4f8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  animation: toast-slide-in 200ms ease-out;
+}
+
+.toast--error {
+  border-color: #f6465d;
+}
+
+.toast--success {
+  border-color: #0ecb81;
+}
+
+.toast--info {
+  border-color: #f0b90b;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ── Skeleton loading ──────────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1e2329 25%,
+    #2b2f36 50%,
+    #1e2329 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ── Focus styling (accessibility) ─────────────────────────────── */
+
+:focus-visible {
+  outline: 1px solid #f0b90b;
+  outline-offset: 2px;
+}
+
+/* ── Input / Select reset for dark theme ───────────────────────── */
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+/* ── Prevent text selection on UI elements ────────────────────── */
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}

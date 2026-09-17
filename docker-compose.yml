@@ -1,0 +1,179 @@
+# ═══════════════════════════════════════════════════════════════════
+# docker-compose.yml - FULL-STACK TRADING PLATFORM
+#
+# Services:
+#   - postgres:  Database (persistent storage)
+#   - redis:     Cache + Pub/Sub (real-time data pipeline)
+#   - seq:       Structured log viewer
+#   - backend:   .NET 9 WebAPI + SignalR (trading engine)
+#   - frontend:  Next.js 15 dashboard (React 19)
+#   - pgadmin:   Database GUI (debug profile)
+#   - redis-commander: Redis GUI (debug profile)
+#
+# Usage:
+#   docker compose up -d                    # Start all services
+#   docker compose up -d --profile debug    # + pgAdmin + Redis Commander
+#   docker compose logs -f backend          # Watch backend logs
+# ═══════════════════════════════════════════════════════════════════
+
+services:
+  # ── PostgreSQL ───────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: quantum-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trading_engine
+      POSTGRES_USER: trading
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-QuantumTrader2024!}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trading -d trading_engine"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - trading-net
+
+  # ── Redis ────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: quantum-redis
+    restart: unless-stopped
+    command: redis-server
+      --requirepass ${REDIS_PASSWORD:-QuantumTrader2024!}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - trading-net
+
+  # ── Seq (Structured Logging) ──────────────────────────────────
+  seq:
+    image: datalust/seq:latest
+    container_name: quantum-seq
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+    volumes:
+      - seq_data:/data
+    ports:
+      - "5341:80"   # Web UI
+    networks:
+      - trading-net
+
+  # ── Backend (.NET 9 API + SignalR) ───────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quantum-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__PostgreSQL: "Host=postgres;Port=5432;Database=trading_engine;Username=trading;Password=${POSTGRES_PASSWORD:-QuantumTrader2024!};Pooling=true;MaxPoolSize=100;Keepalive=60;"
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:-QuantumTrader2024!},abortConnect=false,connectTimeout=5000,syncTimeout=1000,keepAlive=60"
+      Jwt__SecretKey: ${JWT_SECRET_KEY:-CHANGE-ME-IN-PRODUCTION-AT-LEAST-32-CHARACTERS-LONG!!!}
+      TRADING_ENGINE_MASTER_KEY: ${TRADING_ENGINE_MASTER_KEY}
+    ports:
+      - "5000:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - trading-net
+
+  # ── Frontend (Next.js 15 Dashboard) ──────────────────────────
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: quantum-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://backend:8080
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - trading-net
+
+  # ── pgAdmin (debug profile) ──────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: quantum-pgadmin
+    restart: unless-stopped
+    profiles:
+      - debug
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@quantumtrader.io
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - trading-net
+
+  # ── Redis Commander (debug profile) ──────────────────────────
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: quantum-redis-commander
+    restart: unless-stopped
+    profiles:
+      - debug
+    environment:
+      REDIS_HOSTS: local:redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-QuantumTrader2024!}
+    ports:
+      - "8081:8081"
+    networks:
+      - trading-net
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  seq_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  trading-net:
+    driver: bridge
+    name: quantum-trader-net

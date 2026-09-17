@@ -1,0 +1,19 @@
+# ═══════════════════════════════════════════════════════════════════
+# .dockerignore - Frontend build context exclusions
+# ═══════════════════════════════════════════════════════════════════
+
+**/.git
+**/node_modules
+.next/
+out/
+**/.vscode
+**/.idea
+*.md
+.DS_Store
+Thumbs.db
+Dockerfile
+.env*
+.env.local
+.env*.local
+__tests__/
+README.md

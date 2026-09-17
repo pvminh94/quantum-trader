@@ -1,0 +1,20 @@
+# ═══════════════════════════════════════════════════════════════════
+# .dockerignore - Backend build context exclusions
+# ═══════════════════════════════════════════════════════════════════
+
+**/.git
+**/bin
+**/obj
+**/node_modules
+**/.vs
+**/.vscode
+**/.idea
+*.md
+.DS_Store
+Thumbs.db
+docker-compose*
+Dockerfile
+.env*
+scripts/
+tests/
+README.md

@@ -1,0 +1,42 @@
+/* ═══════════════════════════════════════════════════════════════════
+ * chart-theme.css - TradingView Lightweight Charts dark theme overrides.
+ *
+ * Additional CSS for the lightweight-charts canvas to match the
+ * #0b0e11 professional dark palette.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Chart container ────────────────────────────────────────────── */
+
+.tv-lightweight-charts {
+  font-family: var(--font-mono) !important;
+}
+
+/* ── Crosshair label ────────────────────────────────────────────── */
+
+.tv-lightweight-charts .chart-markup-table .crosshair-label {
+  background-color: #1e2329 !important;
+  border: 1px solid #2b2f36 !important;
+  color: #f0f4f8 !important;
+  font-size: 11px !important;
+  padding: 2px 6px !important;
+}
+
+/* ── Tooltip (if any plugin adds it) ────────────────────────────── */
+
+.chart-tooltip {
+  background: #1e2329;
+  border: 1px solid #2b2f36;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #f0f4f8;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Prevent canvas from capturing pointer events in toolbar area ── */
+
+.tv-lightweight-charts canvas {
+  pointer-events: auto;
+}

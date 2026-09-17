@@ -1,0 +1,54 @@
+# ═══════════════════════════════════════════════════════════════════
+# .gitignore - Trading platform monorepo
+# ═══════════════════════════════════════════════════════════════════
+
+# ── .NET ─────────────────────────────────────────────────────────
+backend/**/bin/
+backend/**/obj/
+backend/**/*.user
+backend/**/.vs/
+backend/**/*.suo
+backend/**/*.userosscache
+backend/**/*.userprefs
+
+# ── Node / Next.js ───────────────────────────────────────────────
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+frontend/.turbo/
+frontend/.vercel/
+
+# ── Environment & secrets ───────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/src/**/appsettings.Local.json
+
+# ── IDE / Editor ────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── OS artifacts ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs ─────────────────────────────────────────────────────────
+*.log
+logs/
+/backend/logs/
+
+# ── Docker ───────────────────────────────────────────────────────
+/docker-data/
+
+# ── Coverage ─────────────────────────────────────────────────────
+coverage/
+*.lcov
+
+# ═══════════════════════════════════════════════════════════════════
+# END
+# ═══════════════════════════════════════════════════════════════════
